@@ -1,9 +1,17 @@
 """Keyset vs OFFSET pagination benchmark on PostgreSQL.
 Reproduce: point DSN at any scratch PostgreSQL 12+ database and run `python keyset_bench.py`.
 """
-import json, os, statistics, psycopg2
+import json, os, statistics
 
-DSN = os.environ.get("DSN", "host=/tmp port=54329 user=postgres dbname=postgres")
+DSN = os.environ.get("DSN")
+if not DSN:
+    raise SystemExit(
+        "Set the DSN environment variable to a scratch PostgreSQL 12+ database you do not mind wiping, for example:\n"
+        '  export DSN="host=localhost port=5432 user=postgres dbname=postgres"\n'
+        "The script drops and recreates an orders table."
+    )
+
+import psycopg2
 ROWS = 2_000_000
 PAGE = 50
 DEPTHS = [0, 1_000, 10_000, 100_000, 500_000, 1_000_000, 1_900_000]
